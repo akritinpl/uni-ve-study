@@ -114,6 +114,7 @@ export default function SpecificMeetingImpressions({
           <Fragment key={i}>
             <div className="likert-section">
               {group.intro}
+              <span className="req">*</span>
               {group.note && <span className="note">{group.note}</span>}
             </div>
             <div className="likert-group">

@@ -11,7 +11,12 @@ export default function PostTaskPage() {
   const { handlePostTaskComplete, isSubmitted, nextStepAfter, preTaskChange } = useStudy();
   const [submitting, setSubmitting] = useState(false);
 
-  if (isSubmitted("post-task")) {
+  // Skip the locked notice while `submitting` is true — that covers the gap
+  // between handlePostTaskComplete marking this step submitted and
+  // router.push actually swapping the route, during which this page would
+  // otherwise re-render and flash the notice on a step the participant is
+  // still completing (not returning to).
+  if (isSubmitted("post-task") && !submitting) {
     return (
       <StepLockedNotice
         message="You've already completed this part of the study."
@@ -24,12 +29,15 @@ export default function PostTaskPage() {
   async function onComplete(answers: PostTaskAnswers) {
     setSubmitting(true);
     const ok = await handlePostTaskComplete(answers);
-    setSubmitting(false);
     // Only advance once the save actually succeeded — otherwise the next
     // page's isSubmitted("post-task") guard would immediately bounce the
     // participant back out (to /task-brief), which looks like the app is
     // stuck in a loop after they just finished splitting their time.
-    if (ok) router.push("/specific-meeting-intro");
+    if (ok) {
+      router.push("/specific-meeting-intro");
+    } else {
+      setSubmitting(false);
+    }
   }
 
   return (

@@ -14,7 +14,6 @@ export type Education =
   | "Professional degree"
   | "Doctorate";
 export type WorkArrangement = "Fully remote" | "Fully on-site/in-office" | "Hybrid";
-export type ProfessionalLevel = "Entry level" | "Mid level" | "Senior level" | "Manager" | "Executive";
 
 export type DemographicsAnswers = {
   age: number;
@@ -22,12 +21,12 @@ export type DemographicsAnswers = {
   education: Education;
   meetingsPerWeek: number;
   workArrangement: WorkArrangement;
-  yearsAtJob: number;
-  professionalLevel: ProfessionalLevel;
-  industry: string;
   futureEmail: string;
+  contact1Name: string;
   contact1Email: string;
+  contact2Name: string;
   contact2Email: string;
+  contact3Name: string;
   contact3Email: string;
 };
 
@@ -42,13 +41,24 @@ const EDUCATION_OPTIONS: Education[] = [
   "Doctorate",
 ];
 const WORK_ARRANGEMENT_OPTIONS: WorkArrangement[] = ["Fully remote", "Fully on-site/in-office", "Hybrid"];
-const PROFESSIONAL_LEVEL_OPTIONS: ProfessionalLevel[] = [
-  "Entry level",
-  "Mid level",
-  "Senior level",
-  "Manager",
-  "Executive",
-];
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_ERROR = "Please enter a valid email address, e.g. janedoe@example.com.";
+const CONTACT_EMAIL_REQUIRED_ERROR = "Please enter an email address for this contact.";
+
+// All the email fields on this page are optional, so blank is valid too —
+// only a non-empty value has to look like an email.
+function isValidEmail(email: string) {
+  const trimmed = email.trim();
+  return trimmed === "" || EMAIL_RE.test(trimmed);
+}
+
+// A contact's email is only required once a name has been entered for them.
+function contactEmailError(name: string, email: string): string | null {
+  if (name.trim() !== "" && email.trim() === "") return CONTACT_EMAIL_REQUIRED_ERROR;
+  if (!isValidEmail(email)) return EMAIL_ERROR;
+  return null;
+}
 
 function PickList<T extends string>({
   options,
@@ -88,14 +98,18 @@ export default function DemographicsSurvey({
   const [education, setEducation] = useState<Education | null>(null);
   const [meetingsPerWeek, setMeetingsPerWeek] = useState("");
   const [workArrangement, setWorkArrangement] = useState<WorkArrangement | null>(null);
-  const [yearsAtJob, setYearsAtJob] = useState("");
-  const [professionalLevel, setProfessionalLevel] = useState<ProfessionalLevel | null>(null);
-  const [industry, setIndustry] = useState("");
   const [futureEmail, setFutureEmail] = useState("");
+  const [contact1Name, setContact1Name] = useState("");
   const [contact1Email, setContact1Email] = useState("");
+  const [contact2Name, setContact2Name] = useState("");
   const [contact2Email, setContact2Email] = useState("");
+  const [contact3Name, setContact3Name] = useState("");
   const [contact3Email, setContact3Email] = useState("");
-  const [showIncompleteNotice, setShowIncompleteNotice] = useState(false);
+  const [futureEmailTouched, setFutureEmailTouched] = useState(false);
+  const [contact1EmailTouched, setContact1EmailTouched] = useState(false);
+  const [contact2EmailTouched, setContact2EmailTouched] = useState(false);
+  const [contact3EmailTouched, setContact3EmailTouched] = useState(false);
+  const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
   // futureEmail is intentionally excluded — it's optional (opt-in contact
   // for future studies), unlike every other field here.
@@ -104,10 +118,14 @@ export default function DemographicsSurvey({
     sex !== null &&
     education !== null &&
     meetingsPerWeek.trim() !== "" &&
-    workArrangement !== null &&
-    yearsAtJob.trim() !== "" &&
-    professionalLevel !== null &&
-    industry.trim() !== "";
+    workArrangement !== null;
+
+  const contact1Error = contactEmailError(contact1Name, contact1Email);
+  const contact2Error = contactEmailError(contact2Name, contact2Email);
+  const contact3Error = contactEmailError(contact3Name, contact3Email);
+
+  const emailsValid =
+    isValidEmail(futureEmail) && !contact1Error && !contact2Error && !contact3Error;
 
   return (
     <>
@@ -115,11 +133,18 @@ export default function DemographicsSurvey({
         align="left"
         lines={["Last, please answer a few questions about yourself."]}
         onBack={onBack}
-        continueMuted={!valid}
+        continueMuted={!valid || !emailsValid}
         submitting={submitting}
         onContinue={() => {
-          if (!valid || sex === null || education === null || workArrangement === null || professionalLevel === null) {
-            setShowIncompleteNotice(true);
+          if (!valid || sex === null || education === null || workArrangement === null) {
+            setNoticeMessage("Please answer all the questions before continuing.");
+            return;
+          }
+          if (!emailsValid) {
+            setFutureEmailTouched(true);
+            setContact1EmailTouched(true);
+            setContact2EmailTouched(true);
+            setContact3EmailTouched(true);
             return;
           }
           onComplete({
@@ -128,12 +153,12 @@ export default function DemographicsSurvey({
             education,
             meetingsPerWeek: Number(meetingsPerWeek),
             workArrangement,
-            yearsAtJob: Number(yearsAtJob),
-            professionalLevel,
-            industry: industry.trim(),
             futureEmail,
+            contact1Name,
             contact1Email,
+            contact2Name,
             contact2Email,
+            contact3Name,
             contact3Email,
           });
         }}
@@ -173,9 +198,10 @@ export default function DemographicsSurvey({
           <input
             type="number"
             min={0}
+            step={1}
             className="slide-input"
             value={meetingsPerWeek}
-            onChange={(e) => setMeetingsPerWeek(e.target.value)}
+            onChange={(e) => setMeetingsPerWeek(e.target.value.replace(/[^0-9]/g, ""))}
           />
         </div>
 
@@ -184,39 +210,6 @@ export default function DemographicsSurvey({
             What is your primary work arrangement?<span className="req">*</span>
           </p>
           <PickList options={WORK_ARRANGEMENT_OPTIONS} value={workArrangement} onChange={setWorkArrangement} />
-        </div>
-
-        <div className="slide-q-group">
-          <p className="slide-q">
-            For how many years have you been working at your current job?<span className="req">*</span>
-          </p>
-          <input
-            type="number"
-            min={0}
-            className="slide-input"
-            value={yearsAtJob}
-            onChange={(e) => setYearsAtJob(e.target.value)}
-          />
-        </div>
-
-        <div className="slide-q-group">
-          <p className="slide-q">
-            Which of the following positions most closely matches your current professional level?
-            <span className="req">*</span>
-          </p>
-          <PickList options={PROFESSIONAL_LEVEL_OPTIONS} value={professionalLevel} onChange={setProfessionalLevel} />
-        </div>
-
-        <div className="slide-q-group">
-          <p className="slide-q">
-            In what industry do you work in?<span className="req">*</span>
-          </p>
-          <input
-            type="text"
-            className="slide-input"
-            value={industry}
-            onChange={(e) => setIndustry(e.target.value)}
-          />
         </div>
 
         <div className="slide-q-group">
@@ -231,7 +224,11 @@ export default function DemographicsSurvey({
             placeholder="Optional"
             value={futureEmail}
             onChange={(e) => setFutureEmail(e.target.value)}
+            onBlur={() => setFutureEmailTouched(true)}
           />
+          {futureEmailTouched && !isValidEmail(futureEmail) && (
+            <p className="field-error">{EMAIL_ERROR}</p>
+          )}
         </div>
 
         <div className="slide-q-group">
@@ -242,7 +239,7 @@ export default function DemographicsSurvey({
           <p className="slide-q">
             Please list three people you know who are currently working full-time and who
             regularly participate in workplace meetings. For each person, please provide their
-            email address below.
+            name and email address below.
           </p>
           <p className="slide-q">
             If possible, please also let these individuals know to look out for an email from Dr.
@@ -252,43 +249,91 @@ export default function DemographicsSurvey({
         </div>
 
         <div className="slide-q-group">
-          <p className="slide-q">Contact 1</p>
-          <input
-            type="email"
-            className="slide-input"
-            placeholder="Email address"
-            value={contact1Email}
-            onChange={(e) => setContact1Email(e.target.value)}
-          />
+          <div className="contact-row">
+            <p className="slide-q">Contact 1</p>
+            <input
+              type="text"
+              className="slide-input"
+              placeholder="Name"
+              value={contact1Name}
+              onChange={(e) => setContact1Name(e.target.value)}
+              onBlur={() => setContact1EmailTouched(true)}
+            />
+          </div>
+          <div className="contact-row">
+            <p className="slide-q">Email address:</p>
+            <input
+              type="email"
+              className="slide-input"
+              placeholder="e.g. jane.doe@email.com"
+              value={contact1Email}
+              onChange={(e) => setContact1Email(e.target.value)}
+              onBlur={() => setContact1EmailTouched(true)}
+            />
+          </div>
+          {contact1EmailTouched && contact1Error && (
+            <p className="field-error contact-error">{contact1Error}</p>
+          )}
         </div>
 
         <div className="slide-q-group">
-          <p className="slide-q">Contact 2</p>
-          <input
-            type="email"
-            className="slide-input"
-            placeholder="Email address"
-            value={contact2Email}
-            onChange={(e) => setContact2Email(e.target.value)}
-          />
+          <div className="contact-row">
+            <p className="slide-q">Contact 2</p>
+            <input
+              type="text"
+              className="slide-input"
+              placeholder="Name"
+              value={contact2Name}
+              onChange={(e) => setContact2Name(e.target.value)}
+              onBlur={() => setContact2EmailTouched(true)}
+            />
+          </div>
+          <div className="contact-row">
+            <p className="slide-q">Email address:</p>
+            <input
+              type="email"
+              className="slide-input"
+              placeholder="e.g. jane.doe@email.com"
+              value={contact2Email}
+              onChange={(e) => setContact2Email(e.target.value)}
+              onBlur={() => setContact2EmailTouched(true)}
+            />
+          </div>
+          {contact2EmailTouched && contact2Error && (
+            <p className="field-error contact-error">{contact2Error}</p>
+          )}
         </div>
 
         <div className="slide-q-group">
-          <p className="slide-q">Contact 3</p>
-          <input
-            type="email"
-            className="slide-input"
-            placeholder="Email address"
-            value={contact3Email}
-            onChange={(e) => setContact3Email(e.target.value)}
-          />
+          <div className="contact-row">
+            <p className="slide-q">Contact 3</p>
+            <input
+              type="text"
+              className="slide-input"
+              placeholder="Name"
+              value={contact3Name}
+              onChange={(e) => setContact3Name(e.target.value)}
+              onBlur={() => setContact3EmailTouched(true)}
+            />
+          </div>
+          <div className="contact-row">
+            <p className="slide-q">Email address:</p>
+            <input
+              type="email"
+              className="slide-input"
+              placeholder="e.g. jane.doe@email.com"
+              value={contact3Email}
+              onChange={(e) => setContact3Email(e.target.value)}
+              onBlur={() => setContact3EmailTouched(true)}
+            />
+          </div>
+          {contact3EmailTouched && contact3Error && (
+            <p className="field-error contact-error">{contact3Error}</p>
+          )}
         </div>
       </SlideScreen>
-      {showIncompleteNotice && (
-        <NoticeModal
-          message="Please answer all the questions before continuing."
-          onDismiss={() => setShowIncompleteNotice(false)}
-        />
+      {noticeMessage && (
+        <NoticeModal message={noticeMessage} onDismiss={() => setNoticeMessage(null)} />
       )}
     </>
   );

@@ -47,13 +47,7 @@ export default function SurveyShell({
         {children}
 
         <div className="survey-nav">
-          {onBack ? (
-            <button type="button" className="btn btn-outline btn-sm" onClick={onBack}>
-              Back
-            </button>
-          ) : (
-            <span />
-          )}
+          <span />
           <div className="page-dots">
             {Array.from({ length: totalPages }).map((_, i) => (
               <div

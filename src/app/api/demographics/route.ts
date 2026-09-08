@@ -9,12 +9,12 @@ export async function POST(request: Request) {
     education,
     meetingsPerWeek,
     workArrangement,
-    yearsAtJob,
-    professionalLevel,
-    industry,
     futureEmail,
+    contact1Name,
     contact1Email,
+    contact2Name,
     contact2Email,
+    contact3Name,
     contact3Email,
   } = body;
 
@@ -29,12 +29,12 @@ export async function POST(request: Request) {
     education,
     meetings_per_week: meetingsPerWeek,
     work_arrangement: workArrangement,
-    years_at_job: yearsAtJob,
-    professional_level: professionalLevel,
-    industry,
     future_email: futureEmail?.trim() ? futureEmail.trim() : null,
+    contact_1_name: contact1Name?.trim() ? contact1Name.trim() : null,
     contact_1_email: contact1Email?.trim() ? contact1Email.trim() : null,
+    contact_2_name: contact2Name?.trim() ? contact2Name.trim() : null,
     contact_2_email: contact2Email?.trim() ? contact2Email.trim() : null,
+    contact_3_name: contact3Name?.trim() ? contact3Name.trim() : null,
     contact_3_email: contact3Email?.trim() ? contact3Email.trim() : null,
   });
 

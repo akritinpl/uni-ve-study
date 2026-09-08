@@ -55,7 +55,7 @@ h2 { font-family: var(--fb); font-size: 18px; font-weight: 400; line-height: 1.8
    SLIDE (plain text-forward screens)
 ═══════════════════════════════ */
 .screen-slide { align-items: center; justify-content: center; background: var(--bg); padding: 60px 24px; text-align: center; }
-.screen-slide.justify-top { justify-content: flex-start; padding-top: 260px; }
+.screen-slide.justify-top { justify-content: flex-start; padding-top: 380px; }
 .slide-inner { width: 100%; max-width: 700px; margin: 0 auto; }
 .slide-inner.align-left { max-width: 780px; text-align: left; }
 .slide-inner.align-left.post-review-wide { max-width: 980px; }
@@ -95,9 +95,16 @@ h2 { font-family: var(--fb); font-size: 18px; font-weight: 400; line-height: 1.8
 .slide-q-group { margin-top: 64px; }
 .slide-q-group:first-of-type { margin-top: 48px; }
 .slide-q { font-weight: 500; font-size: 17px; line-height: 1.6; color: var(--text-2); }
+.slide-q + .slide-q { margin-top: 16px; }
 .slide-q-group .slide-textarea { margin-top: 12px; min-height: 80px; }
 .slide-q-group .pick-list, .slide-q-group .day-pill-row, .slide-q-group .slide-input { margin-top: 22px; }
 .slide-q-group .scale-row { margin-top: 40px; }
+.contact-row { display: flex; align-items: center; gap: 12px; }
+.contact-row + .contact-row { margin-top: 12px; }
+.contact-row .slide-q { width: 140px; flex-shrink: 0; white-space: nowrap; }
+.field-error { color: var(--danger); font-size: 13px; margin-top: 6px; }
+.contact-error { margin-left: 152px; }
+.slide-q-group .contact-row .slide-input { margin-top: 0; }
 
 /* ═══════════════════════════════
    WELCOME

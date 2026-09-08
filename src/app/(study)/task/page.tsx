@@ -12,7 +12,12 @@ export default function TaskPage() {
   const { handleTaskComplete, isSubmitted, nextStepAfter } = useStudy();
   const [submitting, setSubmitting] = useState(false);
 
-  if (isSubmitted("task")) {
+  // Skip the locked notice while `submitting` is true — that covers the gap
+  // between handleTaskComplete marking this step submitted and router.push
+  // actually swapping the route, during which this page would otherwise
+  // re-render and flash the notice on a step the participant is still
+  // completing (not returning to).
+  if (isSubmitted("task") && !submitting) {
     return (
       <StepLockedNotice
         message="You've already submitted your ratings for this task. They can't be changed now, because the next part of the study is generated from your original answers."
@@ -29,8 +34,11 @@ export default function TaskPage() {
   ) {
     setSubmitting(true);
     const ok = await handleTaskComplete(ratings, pStrongRec, pWeakRec);
-    setSubmitting(false);
-    if (ok) router.push("/reveal-intro");
+    if (ok) {
+      router.push("/reveal-intro");
+    } else {
+      setSubmitting(false);
+    }
   }
 
   return (
