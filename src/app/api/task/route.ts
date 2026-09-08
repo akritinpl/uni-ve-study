@@ -28,7 +28,8 @@ export async function POST(request: Request) {
   const { error } = await supabaseServer().from("task").insert(row);
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error(error);
+    return Response.json({ error: "Something went wrong" }, { status: 500 });
   }
 
   return Response.json({ ok: true });
