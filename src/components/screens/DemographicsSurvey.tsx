@@ -13,15 +13,11 @@ export type Education =
   | "4 year degree"
   | "Professional degree"
   | "Doctorate";
-export type WorkArrangement = "Fully remote" | "Fully on-site/in-office" | "Hybrid";
-
 export type DemographicsAnswers = {
   age: number;
   sex: Sex;
   education: Education;
   meetingsPerWeek: number;
-  workArrangement: WorkArrangement;
-  futureEmail: string;
   contact1Name: string;
   contact1Email: string;
   contact2Name: string;
@@ -40,8 +36,6 @@ const EDUCATION_OPTIONS: Education[] = [
   "Professional degree",
   "Doctorate",
 ];
-const WORK_ARRANGEMENT_OPTIONS: WorkArrangement[] = ["Fully remote", "Fully on-site/in-office", "Hybrid"];
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const EMAIL_ERROR = "Please enter a valid email address, e.g. janedoe@example.com.";
 const CONTACT_EMAIL_REQUIRED_ERROR = "Please enter an email address for this contact.";
@@ -97,35 +91,28 @@ export default function DemographicsSurvey({
   const [sex, setSex] = useState<Sex | null>(null);
   const [education, setEducation] = useState<Education | null>(null);
   const [meetingsPerWeek, setMeetingsPerWeek] = useState("");
-  const [workArrangement, setWorkArrangement] = useState<WorkArrangement | null>(null);
-  const [futureEmail, setFutureEmail] = useState("");
   const [contact1Name, setContact1Name] = useState("");
   const [contact1Email, setContact1Email] = useState("");
   const [contact2Name, setContact2Name] = useState("");
   const [contact2Email, setContact2Email] = useState("");
   const [contact3Name, setContact3Name] = useState("");
   const [contact3Email, setContact3Email] = useState("");
-  const [futureEmailTouched, setFutureEmailTouched] = useState(false);
   const [contact1EmailTouched, setContact1EmailTouched] = useState(false);
   const [contact2EmailTouched, setContact2EmailTouched] = useState(false);
   const [contact3EmailTouched, setContact3EmailTouched] = useState(false);
   const [noticeMessage, setNoticeMessage] = useState<string | null>(null);
 
-  // futureEmail is intentionally excluded — it's optional (opt-in contact
-  // for future studies), unlike every other field here.
   const valid =
     age.trim() !== "" &&
     sex !== null &&
     education !== null &&
-    meetingsPerWeek.trim() !== "" &&
-    workArrangement !== null;
+    meetingsPerWeek.trim() !== "";
 
   const contact1Error = contactEmailError(contact1Name, contact1Email);
   const contact2Error = contactEmailError(contact2Name, contact2Email);
   const contact3Error = contactEmailError(contact3Name, contact3Email);
 
-  const emailsValid =
-    isValidEmail(futureEmail) && !contact1Error && !contact2Error && !contact3Error;
+  const emailsValid = !contact1Error && !contact2Error && !contact3Error;
 
   return (
     <>
@@ -136,12 +123,11 @@ export default function DemographicsSurvey({
         continueMuted={!valid || !emailsValid}
         submitting={submitting}
         onContinue={() => {
-          if (!valid || sex === null || education === null || workArrangement === null) {
+          if (!valid || sex === null || education === null) {
             setNoticeMessage("Please answer all the questions before continuing.");
             return;
           }
           if (!emailsValid) {
-            setFutureEmailTouched(true);
             setContact1EmailTouched(true);
             setContact2EmailTouched(true);
             setContact3EmailTouched(true);
@@ -152,8 +138,6 @@ export default function DemographicsSurvey({
             sex,
             education,
             meetingsPerWeek: Number(meetingsPerWeek),
-            workArrangement,
-            futureEmail,
             contact1Name,
             contact1Email,
             contact2Name,
@@ -203,32 +187,6 @@ export default function DemographicsSurvey({
             value={meetingsPerWeek}
             onChange={(e) => setMeetingsPerWeek(e.target.value.replace(/[^0-9]/g, ""))}
           />
-        </div>
-
-        <div className="slide-q-group">
-          <p className="slide-q">
-            What is your primary work arrangement?<span className="req">*</span>
-          </p>
-          <PickList options={WORK_ARRANGEMENT_OPTIONS} value={workArrangement} onChange={setWorkArrangement} />
-        </div>
-
-        <div className="slide-q-group">
-          <p className="slide-q">
-            In the future, we will be conducting additional studies on the pros and cons of virtual
-            meetings. If you would like to participate in those future surveys, please enter your
-            email below.
-          </p>
-          <input
-            type="email"
-            className="slide-input"
-            placeholder="Optional"
-            value={futureEmail}
-            onChange={(e) => setFutureEmail(e.target.value)}
-            onBlur={() => setFutureEmailTouched(true)}
-          />
-          {futureEmailTouched && !isValidEmail(futureEmail) && (
-            <p className="field-error">{EMAIL_ERROR}</p>
-          )}
         </div>
 
         <div className="slide-q-group">
