@@ -70,7 +70,6 @@ export default function TaskSurvey({ onComplete, submitting = false, onBack }: T
   // Strong/weak pages collapse via skip*Pick, same as before.
   const strongPage = 2;
   const weakPage = skipStrongPick ? 2 : 3;
-  const totalPages = 2 + (skipStrongPick ? 0 : 1) + (skipWeakPick ? 0 : 1);
 
   function toggleStrong(recId: number) {
     setStrong((prev) => {

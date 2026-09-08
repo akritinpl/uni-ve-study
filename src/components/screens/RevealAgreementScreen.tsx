@@ -277,7 +277,13 @@ function SummaryPhase({
           );
         })}
       </div>
-      <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+      <div style={{ marginTop: 28, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <button className="btn btn-outline btn-sm" onClick={onBack}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
         <button className="btn btn-accent" onClick={onContinue}>
           Continue
         </button>

@@ -26,6 +26,9 @@ export type DemographicsAnswers = {
   professionalLevel: ProfessionalLevel;
   industry: string;
   futureEmail: string;
+  contact1Email: string;
+  contact2Email: string;
+  contact3Email: string;
 };
 
 const SEX_OPTIONS: Sex[] = ["Male", "Female"];
@@ -89,6 +92,9 @@ export default function DemographicsSurvey({
   const [professionalLevel, setProfessionalLevel] = useState<ProfessionalLevel | null>(null);
   const [industry, setIndustry] = useState("");
   const [futureEmail, setFutureEmail] = useState("");
+  const [contact1Email, setContact1Email] = useState("");
+  const [contact2Email, setContact2Email] = useState("");
+  const [contact3Email, setContact3Email] = useState("");
   const [showIncompleteNotice, setShowIncompleteNotice] = useState(false);
 
   // futureEmail is intentionally excluded — it's optional (opt-in contact
@@ -126,6 +132,9 @@ export default function DemographicsSurvey({
             professionalLevel,
             industry: industry.trim(),
             futureEmail,
+            contact1Email,
+            contact2Email,
+            contact3Email,
           });
         }}
       >
@@ -222,6 +231,56 @@ export default function DemographicsSurvey({
             placeholder="Optional"
             value={futureEmail}
             onChange={(e) => setFutureEmail(e.target.value)}
+          />
+        </div>
+
+        <div className="slide-q-group">
+          <p className="slide-q">
+            As part of this study, we will also be reaching out to working professionals who
+            regularly participate in either remote or in-person meetings.
+          </p>
+          <p className="slide-q">
+            Please list three people you know who are currently working full-time and who
+            regularly participate in workplace meetings. For each person, please provide their
+            email address below.
+          </p>
+          <p className="slide-q">
+            If possible, please also let these individuals know to look out for an email from Dr.
+            Nikhil Awasty, Assistant Professor at the Peter T. Paul College of Business and
+            Economics, inviting them to participate in a research study.
+          </p>
+        </div>
+
+        <div className="slide-q-group">
+          <p className="slide-q">Contact 1</p>
+          <input
+            type="email"
+            className="slide-input"
+            placeholder="Email address"
+            value={contact1Email}
+            onChange={(e) => setContact1Email(e.target.value)}
+          />
+        </div>
+
+        <div className="slide-q-group">
+          <p className="slide-q">Contact 2</p>
+          <input
+            type="email"
+            className="slide-input"
+            placeholder="Email address"
+            value={contact2Email}
+            onChange={(e) => setContact2Email(e.target.value)}
+          />
+        </div>
+
+        <div className="slide-q-group">
+          <p className="slide-q">Contact 3</p>
+          <input
+            type="email"
+            className="slide-input"
+            placeholder="Email address"
+            value={contact3Email}
+            onChange={(e) => setContact3Email(e.target.value)}
           />
         </div>
       </SlideScreen>

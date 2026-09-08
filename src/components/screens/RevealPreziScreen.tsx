@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Avatar from "@/components/ui/Avatar";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   EASE,
   RevealRow,
@@ -17,6 +16,18 @@ import { SUGGESTIONS } from "@/lib/suggestions";
 
 const META = CONSULTANT_META;
 const CARD_EASE = "cubic-bezier(.16,1,.3,1)";
+
+function subscribeToMobileQuery(callback: () => void) {
+  const mq = window.matchMedia("(max-width: 640px)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+function getIsMobileSnapshot() {
+  return window.matchMedia("(max-width: 640px)").matches;
+}
+function getIsMobileServerSnapshot() {
+  return false;
+}
 
 type RevealPreziScreenProps = {
   pRes: Ratings;
@@ -52,14 +63,7 @@ export default function RevealPreziScreen({
   const [index, setIndex] = useState(0);
   // Phones need taller cards + tighter padding so multi-line consultant
   // quotes fit without being clipped by the card's overflow:hidden.
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  const isMobile = useSyncExternalStore(subscribeToMobileQuery, getIsMobileSnapshot, getIsMobileServerSnapshot);
   // Whether the current card should skip the staged reveal animation
   // entirely (true once a card has already been shown before — Previous,
   // or a progress-dot / peek-card jump back to it should just display
@@ -98,7 +102,7 @@ export default function RevealPreziScreen({
       timers.push(setTimeout(() => setRevealedCount(2 + i), t));
     }
     return () => timers.forEach(clearTimeout);
-  }, [index, instant]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [index, instant]);
 
   const goTo = useCallback(
     (target: number) => {

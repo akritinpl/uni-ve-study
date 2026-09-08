@@ -55,17 +55,27 @@ export default function SlideScreen({
           </p>
         ))}
         {children}
-        {onContinue && (
-          <div className="slide-nav">
-            <button
-              type="button"
-              className="btn btn-accent btn-lg"
-              onClick={onContinue}
-              disabled={continueDisabled || submitting}
-              style={continueMuted ? { opacity: 0.5 } : undefined}
-            >
-              {submitting ? "Saving…" : continueLabel}
-            </button>
+        {(onBack || onContinue) && (
+          <div className="slide-nav" style={onBack ? { justifyContent: "space-between" } : undefined}>
+            {onBack && (
+              <button type="button" className="btn btn-outline btn-sm" onClick={onBack}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Back
+              </button>
+            )}
+            {onContinue && (
+              <button
+                type="button"
+                className="btn btn-accent btn-lg"
+                onClick={onContinue}
+                disabled={continueDisabled || submitting}
+                style={continueMuted ? { opacity: 0.5 } : undefined}
+              >
+                {submitting ? "Saving…" : continueLabel}
+              </button>
+            )}
           </div>
         )}
       </div>

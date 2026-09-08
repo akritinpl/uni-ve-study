@@ -13,6 +13,9 @@ export async function POST(request: Request) {
     professionalLevel,
     industry,
     futureEmail,
+    contact1Email,
+    contact2Email,
+    contact3Email,
   } = body;
 
   if (typeof participantId !== "string") {
@@ -30,6 +33,9 @@ export async function POST(request: Request) {
     professional_level: professionalLevel,
     industry,
     future_email: futureEmail?.trim() ? futureEmail.trim() : null,
+    contact_1_email: contact1Email?.trim() ? contact1Email.trim() : null,
+    contact_2_email: contact2Email?.trim() ? contact2Email.trim() : null,
+    contact_3_email: contact3Email?.trim() ? contact3Email.trim() : null,
   });
 
   if (error) {
